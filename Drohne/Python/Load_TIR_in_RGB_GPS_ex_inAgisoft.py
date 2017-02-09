@@ -1,12 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Feb  8 13:25:42 2017
-
-@author: bapperl
-"""
-
-
-
+# The goal is to merge the TIR data to the coordinates_ RGB_GPS_table created with "coordinates for AGISOFT_BA.py".
+#This file has to be exec in Agisoft for every model
 
 import PhotoScan
 import os
