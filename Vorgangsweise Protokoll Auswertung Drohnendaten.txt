@@ -1,0 +1,96 @@
+Aufbereitung der TIR Daten
+
+
+
+1.WEG Unabhähnge Berechnung mit kontrastreicheren TIR Bildern in Agisoft
+
+
+
+1) RGB Bilder sichten und laden
+
+2) Drohnen GPS Daten auslesen
+    a) GPX Tools öffnen - Daten für Fluege als Excel Liste auslesen
+    b) Skript: coordinates_for_agisoft_BA.py ausführen (Achtung auf die Orndnerstruktur) um GPS Koordinaten für die Bilder zuzzuweisen
+    c) offset table erstellen (zeitl. Versatz von GPS uhr mit RGB Uhr)
+    d) Koodrinaten importieren Reference -->import     ../Dxxxxxxxx/Txx/Optisch/Coordinates_Dxxxxxxxx_Txx.csv
+
+3) RGB Daten auswerten und Orthofoto erstellen (Vorgangsweise nach Claire Photoscan_Workflow.md)
+    a) In reference settings Koordinatensystem festlegen
+    b) Batch Prozess Batch_RGB.xml ausführen
+
+4) TIR Daten in neuen Chunk laden und zeitlich abgleichen
+    - RGB Aufnahmen auf fehlende Zeitschritte überprüfen
+    - Kontrollfotos anschauen
+
+5) TIR Daten über Skript "Load_TIR_in_RGB_GPS_ex_inAgisoft.py" in GPS Koordinaten anhängen.
+      Dieses Skript muss für jedes Modul in AGISOFT ausgeführt werden.
+
+6) Kontrastreichere TIR Bilder erzeugen mit Python Code mit preprocess_TIR.py
+      -ACHTUNG_ es sollten laut Skript automatisch nur jene TIR Bilder herangezgen werden, welche die Erdoberflaeche zeigen (ohne Himmel)
+       muss ggf. maneull überprüft werden    Standardquantile: q_low=1.0, q_up=98.0
+      Mit festgelgenten Quantilen wird der Kontrast auf dominante Temperautrregionen eingeschränkt
+
+7) In reference settings Kooridnatensystem festlegen
+
+8) Verknüpfen der TIR Bilder mit der Coordinates Table
+      - In Agisoft Python Skript: "Load_TIR_in_RGB_GPS_table.py"
+
+9) Koodrinaten importieren Reference -->import     ../Dxxxxxxxx/Txx/Optisch/Coordinates_Dxxxxxxxx_Txx.csv
+
+10) BatchProzess ausführen wie Batch.RGB.xml
+    - Achtung bei der Erstellung des Orthofotos auf das Mesh beziehen und max.Pixel size verwenden (sonst entstehen Fehler)
+
+
+ORTHOMOSAIC IMMER MIT MESH!!!! AUCH BEI RGB!
+
+
+
+
+
+
+
+2.Weg      Kamerapositionen werden von RGB übernommen- RGB wird georefenziert mit Daten der Drohne
+
+
+A) Drohnen GPS Daten auslesen
+    1) GPX Tools öffnen - Daten für Fluege als Excel Liste auslesen
+    2) Skript: coordinates_for_agisoft_BA.py ausführen (Achtung auf die Orndnerstruktur) um GPS Koordinaten für die Bilder zuzzuweisen
+    3) Koodrinaten importieren Reference -->import     ../Dxxxxxxxx/Txx/Optisch/Coordinates_Dxxxxxxxx_Txx.csv
+
+
+
+
+B)  1) Batch Prozsee ausführen Batch RGB.xml
+
+    3) TIR Daten zeitlich abgleichen
+        - RGB Aufnahmen auf fehlende Zeitschritte überprüfen
+        - Kontrollfotos anschauen
+    3a) OPTIONAL: TIR Daten über Skript "Load_TIR_in_RGB_GPS_ex_inAgisoft.py" in GPS Koordinaten anhängen. Dieses Skript muss für jedes Modul in AGISOFT ausgeführt werden.
+
+    4) Cameraposoition und TIR übernehmen mit
+            import PhotoScan
+            c1 = PhotoScan.app.document.chunks[0]
+            c2 = PhotoScan.app.document.chunks[1]
+            for i in range (len(c1.cameras)):
+            c2.cameras[i].transform = c1.cameras[i].transform
+    5) Übertragen der Coordinaten auf TIR chunk
+          cameraRGB=c1.cameras
+          RGB_loc=[x.reference.location for x in cameraRGB]
+          cameraTIR=c2.cameras
+          for x in range (0,int(len(cameraTIR))):
+            cameraTIR[x].reference.location =RGB_loc[x]
+    6) Model übernehmen
+            import PhotoScan
+            c1 = PhotoScan.app.document.chunks[0]
+            c2 = PhotoScan.app.document.chunks[1]
+            c2.model = c1.model.copy()
+    7) Orthomosaic erstllen (mit selber Einstellung TOPXY oder BOTTOM XY wie bei RGB)
+        falls "Fehler: Nullpoint cloud" folgender Befehl vorher:
+                - use Python line: c2.point_cloud = PhotoScan.PointCloud()
+                - use Tools Menu -> Build Points option (with Lowest Accuracy and 1 for Key Point limit).
+    8) Orthofoto exportieren
+    9) RGB nun georeferenzieren
+    10) danach TIR georeferenzieren (entweder direkt oder zuerst die Georeferenicng Points von RGB verwenden und gegebebenfalls verschieben)
+    11) Agisoft Exprot des Orthomosaics mit max. Pixelsize. Sonst wird der gesamte Bereich niht dargestellt
+
+D:\Daten\Auswertung_Fendt_2016\TIR_Processing\D20160711\Panorama\T1700\Thermal\tiff_color_rename\TIR03490.tiff
