@@ -1,6 +1,4 @@
-Aufbereitung der TIR Daten
-
-
+Vorgangsweise zur Ausweisung der TIR Daten
 
 1.WEG Unabhähnge Berechnung mit kontrastreicheren TIR Bildern in Agisoft
 
@@ -24,24 +22,52 @@ Aufbereitung der TIR Daten
 
 5) TIR Daten über Skript "Load_TIR_in_RGB_GPS_ex_inAgisoft.py" in GPS Koordinaten anhängen.
       Dieses Skript muss für jedes Modul in AGISOFT ausgeführt werden.
+      ACHTUNG: Ungültige Cameras müssen entfernt und nicht nur disabled werden!!!!!
 
-6) Kontrastreichere TIR Bilder erzeugen mit Python Code mit preprocess_TIR.py
+6) Kontrastreichere TIR Bilder erzeugen mit Python Code mit preprocess_TIR.py (in SPyder)
       -ACHTUNG_ es sollten laut Skript automatisch nur jene TIR Bilder herangezgen werden, welche die Erdoberflaeche zeigen (ohne Himmel)
        muss ggf. maneull überprüft werden    Standardquantile: q_low=1.0, q_up=98.0
       Mit festgelgenten Quantilen wird der Kontrast auf dominante Temperautrregionen eingeschränkt
 
-7) In reference settings Kooridnatensystem festlegen
+7) In reference settings Kooridnatensystem
 
 8) Verknüpfen der TIR Bilder mit der Coordinates Table
       - In Agisoft Python Skript: "Load_TIR_in_RGB_GPS_table.py"
+
+9) Neuen Chnuk mit Bilder einfügen, Koordinatensystem festlegen und cameracalibration durchführen
 
 9) Koodrinaten importieren Reference -->import     ../Dxxxxxxxx/Txx/Optisch/Coordinates_Dxxxxxxxx_Txx.csv
 
 10) BatchProzess ausführen wie Batch.RGB.xml
     - Achtung bei der Erstellung des Orthofotos auf das Mesh beziehen und max.Pixel size verwenden (sonst entstehen Fehler)
 
+11) Model und cameraPosition von pseudetiff Tir auf TIR chung übertragen (Übertrag_Daten_RGB_aufTIR_imBatch.py)
+
+12) Orthomosaic für TIR berechnen
+
+
+
+EMISSIVITY AND TRANSMITTANCE CORECTION (details):
+
+1) Load Athmosferic orrection of tir_images_2.py
+    input needed:       - CSV files of raw temperatures
+                        - Angle files for tiff images (yaw ptich roll) saved from aGISOFT Camera positioing of TIR chunk)
+                        -Log files of GPS offset
+
+2) Define input variables
+3) In load tables: define path of tables
+4) in pielach_funs. py: load type of tranmissivity for calculation (roe 120+)
+5) run file
+
+
+
 
 ORTHOMOSAIC IMMER MIT MESH!!!! AUCH BEI RGB!
+
+
+
+
+
 
 
 
@@ -56,9 +82,6 @@ A) Drohnen GPS Daten auslesen
     1) GPX Tools öffnen - Daten für Fluege als Excel Liste auslesen
     2) Skript: coordinates_for_agisoft_BA.py ausführen (Achtung auf die Orndnerstruktur) um GPS Koordinaten für die Bilder zuzzuweisen
     3) Koodrinaten importieren Reference -->import     ../Dxxxxxxxx/Txx/Optisch/Coordinates_Dxxxxxxxx_Txx.csv
-
-
-
 
 B)  1) Batch Prozsee ausführen Batch RGB.xml
 
@@ -91,6 +114,5 @@ B)  1) Batch Prozsee ausführen Batch RGB.xml
     8) Orthofoto exportieren
     9) RGB nun georeferenzieren
     10) danach TIR georeferenzieren (entweder direkt oder zuerst die Georeferenicng Points von RGB verwenden und gegebebenfalls verschieben)
+    10a) aus references Position und Winkel exportieren in Aswertungsordner (YaxPitchRoll_EstimatesTIR_D_20160826_T14.txt)
     11) Agisoft Exprot des Orthomosaics mit max. Pixelsize. Sonst wird der gesamte Bereich niht dargestellt
-
-D:\Daten\Auswertung_Fendt_2016\TIR_Processing\D20160711\Panorama\T1700\Thermal\tiff_color_rename\TIR03490.tiff
